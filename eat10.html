@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/style.css">
+<title>EAT-10 — Calculadora</title>
+</head>
+<body>
+<script>
+window.SCALE={
+ id:'eat10',
+ title:'EAT-10',
+ subtitle:'Herramienta de cribado de disfagia · Eating Assessment Tool',
+ cite:'Belafsky PC, et al. Ann Otol Rhinol Laryngol 2008. Validación española: Burgos R, et al. Clin Nutr 2012. 10 ítems, 0–4. Total 0–40.',
+ totalLabel:'Total EAT-10',
+ max:40,
+ headnote:'Cada ítem: 0 = ningún problema · 4 = es un problema serio.',
+ items:[
+  {n:1,name:'Mi problema para tragar me ha llevado a perder peso'},
+  {n:2,name:'Mi problema para tragar interfiere con mi capacidad para comer fuera de casa'},
+  {n:3,name:'Tragar líquidos me supone un esfuerzo extra'},
+  {n:4,name:'Tragar sólidos me supone un esfuerzo extra'},
+  {n:5,name:'Tragar pastillas me supone un esfuerzo extra'},
+  {n:6,name:'Tragar es doloroso'},
+  {n:7,name:'El placer de comer se ve afectado por mi problema para tragar'},
+  {n:8,name:'Cuando trago, la comida se pega en mi garganta'},
+  {n:9,name:'Toso cuando como'},
+  {n:10,name:'Tragar es estresante'}
+ ].map(it=>({...it,options:[
+    {v:0,d:'Ningún problema.'},{v:1,d:'Leve.'},{v:2,d:'Moderado.'},
+    {v:3,d:'Importante.'},{v:4,d:'Es un problema serio.'}]})),
+ bands:[
+  {min:0,max:2,label:'dentro de lo normal'},
+  {min:3,max:40,label:'anormal: sugiere problema de deglución'}
+ ],
+ footer:[
+  '<b>Interpretación.</b> Un total <b>≥3</b> se considera anormal y sugiere un problema de eficacia o seguridad de la deglución; conviene una evaluación más detallada.',
+  '<b>Uso.</b> Cuestionario autoadministrado, de libre uso clínico. Cada ítem se puntúa de 0 (ningún problema) a 4 (problema serio).'
+ ]
+};
+</script>
+<script src="assets/engine.js"></script>
+</body>
+</html>

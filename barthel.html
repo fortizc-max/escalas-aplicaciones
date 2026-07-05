@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/style.css">
+<title>Índice de Barthel — Calculadora</title>
+</head>
+<body>
+<script>
+window.SCALE={
+ id:'barthel',
+ title:'Índice de Barthel',
+ subtitle:'Actividades básicas de la vida diaria',
+ cite:'Mahoney FI, Barthel DW. Maryland State Med J 1965;14:61–65. Total 0 (dependencia total) – 100 (independencia).',
+ totalLabel:'Total Barthel',
+ max:100,
+ items:[
+  {n:1,name:'Alimentación',options:[
+    {v:0,d:'Incapaz.'},
+    {v:5,d:'Necesita ayuda (p. ej., para cortar, extender mantequilla).'},
+    {v:10,d:'Independiente (come solo en un tiempo razonable).'}]},
+  {n:2,name:'Baño / Bañarse',options:[
+    {v:0,d:'Dependiente.'},
+    {v:5,d:'Independiente (entra y sale solo del baño o la ducha).'}]},
+  {n:3,name:'Aseo personal',options:[
+    {v:0,d:'Necesita ayuda.'},
+    {v:5,d:'Independiente para lavarse la cara, peinarse, afeitarse, lavarse los dientes.'}]},
+  {n:4,name:'Vestido',options:[
+    {v:0,d:'Dependiente.'},
+    {v:5,d:'Necesita ayuda, pero realiza al menos la mitad sin ayuda en un tiempo razonable.'},
+    {v:10,d:'Independiente (incluye botones, cremalleras, cordones).'}]},
+  {n:5,name:'Deposición (control intestinal)',options:[
+    {v:0,d:'Incontinente (o necesita enemas/supositorios administrados).'},
+    {v:5,d:'Accidente ocasional (una vez por semana).'},
+    {v:10,d:'Continente.'}]},
+  {n:6,name:'Micción (control vesical)',options:[
+    {v:0,d:'Incontinente, o sondado e incapaz de manejarse solo.'},
+    {v:5,d:'Accidente ocasional (máximo una vez cada 24 h).'},
+    {v:10,d:'Continente (maneja solo la sonda si la tiene).'}]},
+  {n:7,name:'Uso del retrete',options:[
+    {v:0,d:'Dependiente.'},
+    {v:5,d:'Necesita alguna ayuda, pero puede hacer algo solo.'},
+    {v:10,d:'Independiente (se sienta, se limpia, se viste).'}]},
+  {n:8,name:'Traslado sillón / cama',options:[
+    {v:0,d:'Incapaz, no se mantiene sentado.'},
+    {v:5,d:'Necesita mucha ayuda (una persona entrenada o dos), puede permanecer sentado.'},
+    {v:10,d:'Necesita algo de ayuda (física o verbal).'},
+    {v:15,d:'Independiente.'}]},
+  {n:9,name:'Deambulación',options:[
+    {v:0,d:'Inmóvil.'},
+    {v:5,d:'Independiente en silla de ruedas 50 m (incluye esquinas).'},
+    {v:10,d:'Camina 50 m con ayuda física o verbal de una persona.'},
+    {v:15,d:'Independiente 50 m (puede usar ayuda técnica, p. ej. bastón).'}]},
+  {n:10,name:'Subir y bajar escaleras',options:[
+    {v:0,d:'Incapaz.'},
+    {v:5,d:'Necesita ayuda física o verbal.'},
+    {v:10,d:'Independiente (puede usar pasamanos o ayuda técnica).'}]}
+ ],
+ bands:[
+  {min:0,max:19,label:'dependencia total'},
+  {min:20,max:39,label:'dependencia grave'},
+  {min:40,max:59,label:'dependencia moderada'},
+  {min:60,max:99,label:'dependencia leve'},
+  {min:100,max:100,label:'independencia'}
+ ],
+ footer:[
+  '<b>Interpretación.</b> Puntos de corte habituales (Cid-Ruzafa 1997): &lt;20 dependencia total · 20–35 grave · 40–55 moderada · ≥60 leve · 100 independiente. A mayor puntaje, mayor independencia.',
+  '<b>Uso.</b> Instrumento de dominio público, ampliamente usado y traducido.'
+ ]
+};
+</script>
+<script src="assets/engine.js"></script>
+</body>
+</html>

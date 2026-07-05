@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/style.css">
+<title>Escala de Berg — Calculadora</title>
+</head>
+<body>
+<script>
+window.SCALE={
+ id:'berg',
+ title:'Escala de Equilibrio de Berg',
+ subtitle:'Berg Balance Scale (BBS) · equilibrio estático y dinámico',
+ cite:'Berg K, et al. Physiother Can 1989; Scand J Rehabil Med 1995. 14 ítems, 0–4 cada uno. Total 0–56.',
+ totalLabel:'Total Berg',
+ max:56,
+ items:[
+  {n:1,name:'De sedestación a bipedestación',options:[
+    {v:0,d:'Necesita ayuda moderada o máxima para levantarse.'},
+    {v:1,d:'Necesita ayuda mínima para levantarse o estabilizarse.'},
+    {v:2,d:'Se levanta usando las manos tras varios intentos.'},
+    {v:3,d:'Se levanta de forma independiente usando las manos.'},
+    {v:4,d:'Se levanta sin usar las manos y se estabiliza solo.'}]},
+  {n:2,name:'Bipedestación sin apoyo',options:[
+    {v:0,d:'No puede permanecer de pie 30 s sin ayuda.'},
+    {v:1,d:'Necesita varios intentos para mantenerse 30 s sin apoyo.'},
+    {v:2,d:'Se mantiene 30 s sin apoyo.'},
+    {v:3,d:'Se mantiene 2 min con supervisión.'},
+    {v:4,d:'Se mantiene de pie con seguridad 2 min.'}]},
+  {n:3,name:'Sedestación sin respaldo, pies apoyados',options:[
+    {v:0,d:'No puede permanecer sentado 10 s sin apoyo.'},
+    {v:1,d:'Se mantiene sentado 10 s.'},
+    {v:2,d:'Se mantiene sentado 30 s.'},
+    {v:3,d:'Se mantiene sentado 2 min bajo supervisión.'},
+    {v:4,d:'Se mantiene sentado con seguridad 2 min.'}]},
+  {n:4,name:'De bipedestación a sedestación',options:[
+    {v:0,d:'Necesita ayuda para sentarse.'},
+    {v:1,d:'Se sienta solo pero con descenso descontrolado.'},
+    {v:2,d:'Usa la parte posterior de las piernas contra la silla para controlar el descenso.'},
+    {v:3,d:'Controla el descenso usando las manos.'},
+    {v:4,d:'Se sienta con seguridad usando mínimamente las manos.'}]},
+  {n:5,name:'Transferencias',options:[
+    {v:0,d:'Necesita dos personas para ayudar o supervisar.'},
+    {v:1,d:'Necesita una persona.'},
+    {v:2,d:'Puede transferirse con indicaciones verbales o supervisión.'},
+    {v:3,d:'Puede transferirse con seguridad, uso definido de las manos.'},
+    {v:4,d:'Puede transferirse con seguridad, uso mínimo de las manos.'}]},
+  {n:6,name:'Bipedestación con ojos cerrados',options:[
+    {v:0,d:'Necesita ayuda para no caer.'},
+    {v:1,d:'No mantiene los ojos cerrados 3 s pero se queda estable.'},
+    {v:2,d:'Se mantiene 3 s.'},
+    {v:3,d:'Se mantiene 10 s con supervisión.'},
+    {v:4,d:'Se mantiene 10 s con seguridad.'}]},
+  {n:7,name:'Bipedestación con pies juntos',options:[
+    {v:0,d:'Necesita ayuda para lograr la posición y no la mantiene 15 s.'},
+    {v:1,d:'Necesita ayuda para lograr la posición, la mantiene 15 s con pies juntos.'},
+    {v:2,d:'Junta los pies solo, pero no mantiene 30 s.'},
+    {v:3,d:'Junta los pies solo y se mantiene 1 min con supervisión.'},
+    {v:4,d:'Junta los pies solo y se mantiene 1 min con seguridad.'}]},
+  {n:8,name:'Alcance anterior con brazo extendido',options:[
+    {v:0,d:'Pierde el equilibrio / necesita apoyo externo.'},
+    {v:1,d:'Alcanza hacia delante pero necesita supervisión.'},
+    {v:2,d:'Alcanza con seguridad >5 cm.'},
+    {v:3,d:'Alcanza con seguridad >12 cm.'},
+    {v:4,d:'Alcanza con seguridad >25 cm.'}]},
+  {n:9,name:'Recoger un objeto del suelo',options:[
+    {v:0,d:'No puede intentarlo / necesita ayuda para no perder el equilibrio.'},
+    {v:1,d:'No puede recogerlo y necesita supervisión al intentarlo.'},
+    {v:2,d:'No alcanza el objeto (2–5 cm) pero mantiene el equilibrio solo.'},
+    {v:3,d:'Recoge el objeto con supervisión.'},
+    {v:4,d:'Recoge el objeto con facilidad y seguridad.'}]},
+  {n:10,name:'Girar para mirar atrás por encima de los hombros',options:[
+    {v:0,d:'Necesita ayuda para no perder el equilibrio.'},
+    {v:1,d:'Necesita supervisión al girar.'},
+    {v:2,d:'Gira solo hacia un lado, mantiene el equilibrio.'},
+    {v:3,d:'Mira atrás por un lado; el otro muestra menos desplazamiento del peso.'},
+    {v:4,d:'Mira atrás por ambos lados con buen desplazamiento del peso.'}]},
+  {n:11,name:'Giro de 360°',options:[
+    {v:0,d:'Necesita ayuda al girar.'},
+    {v:1,d:'Necesita supervisión estrecha o indicaciones verbales.'},
+    {v:2,d:'Gira 360° con seguridad pero lentamente.'},
+    {v:3,d:'Gira 360° con seguridad solo hacia un lado en ≤4 s.'},
+    {v:4,d:'Gira 360° con seguridad en ≤4 s en cada dirección.'}]},
+  {n:12,name:'Colocar pies alternos en un escalón',options:[
+    {v:0,d:'Necesita ayuda para no caer / no puede intentarlo.'},
+    {v:1,d:'Completa >2 toques con ayuda mínima.'},
+    {v:2,d:'Completa 4 toques sin ayuda pero con supervisión.'},
+    {v:3,d:'Completa 8 toques solo, en >20 s.'},
+    {v:4,d:'Completa 8 toques solo y con seguridad en 20 s.'}]},
+  {n:13,name:'Bipedestación con un pie delante (tándem)',options:[
+    {v:0,d:'Pierde el equilibrio al dar el paso o al estar de pie.'},
+    {v:1,d:'Necesita ayuda para el paso, mantiene la posición 15 s.'},
+    {v:2,d:'Da un paso pequeño solo, mantiene 30 s.'},
+    {v:3,d:'Coloca un pie delante del otro (no en tándem estricto), mantiene 30 s.'},
+    {v:4,d:'Coloca el pie en tándem de forma independiente y mantiene 30 s.'}]},
+  {n:14,name:'Bipedestación sobre un pie',options:[
+    {v:0,d:'No puede intentarlo o necesita ayuda para no caer.'},
+    {v:1,d:'Intenta levantar la pierna, no logra 3 s, permanece de pie.'},
+    {v:2,d:'Se mantiene sobre un pie ≥3 s.'},
+    {v:3,d:'Se mantiene sobre un pie 5–10 s.'},
+    {v:4,d:'Se mantiene sobre un pie >10 s.'}]}
+ ],
+ bands:[
+  {min:0,max:20,label:'riesgo alto de caídas (suele requerir silla de ruedas)'},
+  {min:21,max:40,label:'riesgo moderado (marcha con asistencia)'},
+  {min:41,max:56,label:'riesgo bajo (marcha independiente)'}
+ ],
+ footer:[
+  '<b>Interpretación.</b> 0–20 riesgo alto · 21–40 riesgo moderado · 41–56 riesgo bajo. Puntajes &lt;45 se han asociado con mayor riesgo de caídas. A mayor puntaje, mejor equilibrio.',
+  '<b>Uso.</b> Instrumento de libre uso clínico y de investigación. Requiere cronómetro, regla, silla, escalón/taburete.'
+ ]
+};
+</script>
+<script src="assets/engine.js"></script>
+</body>
+</html>

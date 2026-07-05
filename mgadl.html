@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/style.css">
+<title>MG-ADL — Calculadora</title>
+</head>
+<body>
+<script>
+window.SCALE={
+ id:'mgadl',
+ title:'MG-ADL',
+ subtitle:'Actividades de la vida diaria en miastenia gravis · Myasthenia Gravis Activities of Daily Living',
+ cite:'Wolfe GI, et al. Neurology 1999;52:1487–1489. 8 ítems autorreportados, 0–3 cada uno. Total 0–24.',
+ totalLabel:'Total MG-ADL',
+ max:24,
+ items:[
+  {n:1,name:'Habla',options:[
+    {v:0,d:'Normal.'},
+    {v:1,d:'Disartria intermitente o habla nasal.'},
+    {v:2,d:'Disartria o habla nasal permanente, pero se le entiende.'},
+    {v:3,d:'Se le entiende con mucha dificultad.'}]},
+  {n:2,name:'Masticación',options:[
+    {v:0,d:'Normal.'},{v:1,d:'Fatiga con comida sólida.'},
+    {v:2,d:'Fatiga con comida blanda.'},{v:3,d:'Alimentación por sonda.'}]},
+  {n:3,name:'Deglución',options:[
+    {v:0,d:'Normal.'},{v:1,d:'Atoramiento ocasional.'},
+    {v:2,d:'Atoramiento frecuente; requiere cambio de textura.'},
+    {v:3,d:'Alimentación por sonda.'}]},
+  {n:4,name:'Respiración',options:[
+    {v:0,d:'Normal.'},{v:1,d:'Disnea con el ejercicio.'},
+    {v:2,d:'Disnea en reposo.'},{v:3,d:'Dependencia de ventilador.'}]},
+  {n:5,name:'Dificultad para cepillarse los dientes o peinarse',options:[
+    {v:0,d:'Ninguna.'},
+    {v:1,d:'Esfuerzo extra, pero no requiere períodos de descanso.'},
+    {v:2,d:'Requiere períodos de descanso.'},
+    {v:3,d:'No puede realizar una de estas tareas.'}]},
+  {n:6,name:'Dificultad para levantarse de una silla',options:[
+    {v:0,d:'Ninguna.'},{v:1,d:'Leve, a veces usa los brazos.'},
+    {v:2,d:'Moderada, siempre usa los brazos.'},{v:3,d:'Requiere asistencia.'}]},
+  {n:7,name:'Visión doble',options:[
+    {v:0,d:'Ninguna.'},{v:1,d:'Ocurre, pero no diariamente.'},
+    {v:2,d:'Diariamente, pero no constante.'},{v:3,d:'Constante.'}]},
+  {n:8,name:'Párpado caído (ptosis)',options:[
+    {v:0,d:'Ninguno.'},{v:1,d:'Ocurre, pero no diariamente.'},
+    {v:2,d:'Diariamente, pero no constante.'},{v:3,d:'Constante.'}]}
+ ],
+ footer:[
+  '<b>Interpretación.</b> A mayor puntaje, mayor severidad percibida. En ensayos clínicos, una <b>reducción ≥2 puntos</b> se considera mejoría clínicamente relevante (criterio de respondedor).',
+  '<b>Uso.</b> Instrumento de libre uso. Correlaciona con la escala cuantitativa QMG (Vissing 2018).'
+ ]
+};
+</script>
+<script src="assets/engine.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/style.css">
+<title>SARA — Calculadora</title>
+</head>
+<body>
+<script>
+window.SCALE={
+ id:'sara',
+ title:'SARA',
+ subtitle:'Escala para la Evaluación y Calificación de la Ataxia · Scale for the Assessment and Rating of Ataxia',
+ cite:'Schmitz-Hübsch T, et al. Neurology 2006;66:1717–1720. Total 0 (sin ataxia) – 40 (más severa). Ítems 5–8: media aritmética de ambos lados.',
+ totalLabel:'Total SARA',
+ max:40,
+ items:[
+  {n:1,name:'Marcha',instr:'Caminar paralelo a una pared con media vuelta y en tándem sin apoyo.',options:[
+    {v:0,d:'Normal, sin dificultades para caminar, girar y caminar en tándem (se permite hasta un paso erróneo).'},
+    {v:1,d:'Dificultades leves, solo visibles al caminar 10 pasos consecutivos en tándem.'},
+    {v:2,d:'Claramente anormal; caminar en tándem >10 pasos no es posible.'},
+    {v:3,d:'Marcha tambaleante considerable, dificultades en la media vuelta, pero sin soporte.'},
+    {v:4,d:'Marcha tambaleante marcada; se requiere soporte intermitente de la pared.'},
+    {v:5,d:'Marcha tambaleante severa; se requiere soporte permanente de un bastón o soporte ligero por un brazo.'},
+    {v:6,d:'Camina >10 m solo con soporte fuerte (dos bastones, caminador o acompañante).'},
+    {v:7,d:'Camina <10 m solo con soporte fuerte (dos bastones, caminador o acompañante).'},
+    {v:8,d:'No puede caminar, incluso con apoyo.'}]},
+  {n:2,name:'Bipedestación',instr:'De pie en posición natural, con pies juntos y en tándem. Sin zapatos, ojos abiertos; mejor de tres ensayos.',options:[
+    {v:0,d:'Normal, capaz de estar de pie en tándem durante >10 s.'},
+    {v:1,d:'Capaz de estar de pie con los pies juntos sin balancearse, pero no en tándem durante >10 s.'},
+    {v:2,d:'Capaz de estar de pie con los pies juntos durante >10 s, pero solo con balanceo.'},
+    {v:3,d:'Capaz de estar de pie >10 s sin apoyo en posición natural, pero no con los pies juntos.'},
+    {v:4,d:'Capaz de estar de pie >10 s en posición natural, solo con soporte intermitente.'},
+    {v:5,d:'Capaz de estar de pie >10 s en posición natural, solo con soporte constante de un brazo.'},
+    {v:6,d:'Incapaz de permanecer de pie durante >10 s, incluso con soporte constante de un brazo.'}]},
+  {n:3,name:'Sedestación',instr:'Sentado en la camilla sin apoyar los pies, ojos abiertos y brazos extendidos al frente.',options:[
+    {v:0,d:'Normal, sin dificultades para sentarse >10 s.'},
+    {v:1,d:'Dificultades leves, balanceo intermitente.'},
+    {v:2,d:'Balanceo constante, pero capaz de sentarse >10 s sin soporte.'},
+    {v:3,d:'Capaz de sentarse durante >10 s solo con soporte intermitente.'},
+    {v:4,d:'Incapaz de sentarse durante >10 s sin soporte continuo.'}]},
+  {n:4,name:'Alteración del habla',instr:'Se evalúa durante la conversación normal.',options:[
+    {v:0,d:'Normal.'},{v:1,d:'Sugerencia de alteración del habla.'},
+    {v:2,d:'Habla alterada, pero fácil de entender.'},
+    {v:3,d:'Palabras ocasionales difíciles de entender.'},
+    {v:4,d:'Muchas palabras difíciles de entender.'},
+    {v:5,d:'Solo palabras individuales comprensibles.'},
+    {v:6,d:'Habla ininteligible / anartria.'}]},
+  {n:5,name:'Persecución de los dedos (finger chase)',bi:true,instr:'El examinador hace 5 movimientos rápidos e impredecibles; el paciente sigue con el índice. Promedio de los últimos 3.',options:[
+    {v:0,d:'Sin dismetría (lleva el dedo al objetivo esperado).'},
+    {v:1,d:'Dismetría; lleva el dedo por debajo/por encima del objetivo <5 cm.'},
+    {v:2,d:'Dismetría; lleva el dedo por debajo/por encima del objetivo <15 cm.'},
+    {v:3,d:'Dismetría; lleva el dedo por debajo/por encima del objetivo >15 cm.'},
+    {v:4,d:'No puede realizar los 5 movimientos de puntería.'}]},
+  {n:6,name:'Prueba nariz-dedo (nose-finger)',bi:true,instr:'Apuntar de la nariz al dedo del examinador a velocidad moderada. Se clasifica la amplitud del temblor cinético.',options:[
+    {v:0,d:'Sin temblor.'},{v:1,d:'Temblor con amplitud <2 cm.'},
+    {v:2,d:'Temblor con amplitud <5 cm.'},{v:3,d:'Temblor con amplitud >5 cm.'},
+    {v:4,d:'Incapaz de realizar 5 movimientos.'}]},
+  {n:7,name:'Movimientos alternos rápidos de las manos',bi:true,instr:'10 ciclos de pronación-supinación sobre el muslo, tan rápido y preciso como sea posible (modelo ~10 ciclos en 7 s).',options:[
+    {v:0,d:'Normal, sin irregularidades (realiza en <10 s).'},
+    {v:1,d:'Ligeramente irregular (realiza en <10 s).'},
+    {v:2,d:'Claramente irregular; movimientos difíciles de distinguir o con interrupciones, pero realiza en <10 s.'},
+    {v:3,d:'Muy irregular; movimientos difíciles de distinguir o con interrupciones; realiza en >10 s.'},
+    {v:4,d:'Incapaz de completar 10 ciclos.'}]},
+  {n:8,name:'Deslizamiento talón-espinilla (heel-shin)',bi:true,instr:'Boca arriba, sin ver las piernas: llevar el talón a la rodilla opuesta y deslizarlo por la espinilla hasta el tobillo. Tres veces.',options:[
+    {v:0,d:'Normal.'},{v:1,d:'Ligeramente anormal; se mantiene el contacto con la espinilla.'},
+    {v:2,d:'Claramente anormal; el talón se separa de la espinilla hasta 3 veces durante los 3 ciclos.'},
+    {v:3,d:'Severamente anormal; el talón se separa de la espinilla 4 o más veces durante los 3 ciclos.'},
+    {v:4,d:'Incapaz de realizar la tarea.'}]}
+ ],
+ footer:[
+  '<b>Uso.</b> La SARA es de uso libre para fines clínicos y de investigación. Fiabilidad interevaluador ICC 0,98; test–retest ICC 0,90; consistencia interna α de Cronbach 0,94 (Schmitz-Hübsch 2006).',
+  '<b>Nota.</b> Traducción de trabajo al español; no corresponde a una versión con validación psicométrica formal publicada en español.',
+  '<b>Interpretación.</b> Se lee sobre todo en clave longitudinal: la progresión anual depende del subtipo (mayor en SCA1, intermedia en SCA2/SCA3, más lenta en SCA6).'
+ ]
+};
+</script>
+<script src="assets/engine.js"></script>
+</body>
+</html>
