@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/style.css">
+<title>Riesgo de pérdida de la marcha en DMD — Calculadora</title>
+<style>
+/* ---- Rampa ordinal de riesgo (1 = menor, 5 = mayor) --------------------
+   Un solo tono, monótona en claridad. Validada con el validador de paleta
+   del método de visualización: modo claro sobre #ffffff y modo oscuro sobre
+   #211f24, comprobando monotonía, salto mínimo de claridad entre pasos y
+   contraste del paso más cercano al fondo (>= 2:1).
+   La rampa se INVIERTE en modo oscuro: el paso que se funde con el fondo
+   debe ser siempre el de menor riesgo, de modo que el grupo 5 sea el mark
+   más luminoso en los dos modos.                                         */
+.viz{
+  --r1:#F09A9F; --r2:#E1656F; --r3:#CE3346; --r4:#A81028; --r5:#780A1C;
+  --grid:#e4e0da; --axis:#b8b2aa;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .viz{
+    --r1:#A32436; --r2:#C93A4C; --r3:#E05F6C; --r4:#EE9098; --r5:#F7C3C6;
+    --grid:#34313a; --axis:#5d5866;
+  }
+}
+:root[data-theme="dark"] .viz{
+  --r1:#A32436; --r2:#C93A4C; --r3:#E05F6C; --r4:#EE9098; --r5:#F7C3C6;
+  --grid:#34313a; --axis:#5d5866;
+}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:16px;margin:14px 0;box-shadow:var(--shadow)}
+.panel h3{margin:0 0 10px;font-size:.9rem;color:var(--accent2);
+  text-transform:uppercase;letter-spacing:.4px}
+
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.fields{grid-template-columns:1fr}}
+.field label.lbl{display:block;font-weight:700;font-size:.95rem;margin-bottom:2px}
+.field .hint{color:var(--muted);font-size:.82rem;margin-bottom:8px}
+.field input[type=number]{width:100%;padding:10px 12px;font-size:1.05rem;
+  border:1px solid var(--line);border-radius:9px;background:var(--bg);
+  color:var(--ink);font-variant-numeric:tabular-nums}
+.field input[type=number]:focus{outline:2px solid var(--accent);outline-offset:1px}
+.field.muted-field{opacity:.45}
+.chk{display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-size:.86rem;
+  color:var(--muted);cursor:pointer}
+.chk input{margin-top:3px}
+.note{font-size:.82rem;color:var(--muted);margin-top:8px}
+
+.result{background:var(--accent)}
+.result.g1{background:#5d7f52}
+.result .grp{font-size:.9rem;opacity:.9;letter-spacing:.4px;text-transform:uppercase}
+.result .big{font-size:2.6rem}
+.result .prognosis{font-size:1rem;opacity:.97;margin-top:8px;max-width:44ch;
+  margin-left:auto;margin-right:auto;line-height:1.45}
+.result .med{font-size:.86rem;opacity:.9;margin-top:12px;
+  border-top:1px solid rgba(255,255,255,.28);padding-top:10px}
+.result.empty{background:var(--badge);color:var(--muted)}
+.result.empty .big{font-size:1.05rem;font-weight:600}
+
+.trace{font-size:.85rem;color:var(--muted);margin:10px 0 0;
+  background:var(--badge);border-radius:9px;padding:10px 12px}
+.trace b{color:var(--ink)}
+
+.warn{background:#fdf3e3;border:1px solid #e0b871;color:#6b4d15;
+  border-radius:10px;padding:11px 13px;font-size:.87rem;margin:12px 0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .warn{
+  background:#3a2e16;border-color:#7a6230;color:#f0d9a8}}
+:root[data-theme="dark"] .warn{background:#3a2e16;border-color:#7a6230;color:#f0d9a8}
+.warn b{display:block;margin-bottom:2px}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:2px 0 10px;font-size:.82rem}
+.lg{display:inline-flex;align-items:center;gap:7px;color:var(--muted);
+  cursor:default;padding:2px 4px;border-radius:6px}
+.lg.on{color:var(--ink);font-weight:700}
+.lg i{width:22px;height:3px;border-radius:2px;display:inline-block;flex:none}
+
+.chartbox{position:relative}
+svg.chart{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;
+  background:var(--card);border:1px solid var(--line);border-radius:9px;
+  box-shadow:var(--shadow);padding:9px 11px;font-size:.82rem;min-width:150px;z-index:5}
+.tip .tt{font-weight:700;margin-bottom:5px;font-size:.84rem}
+.tip .tr{display:flex;align-items:center;gap:7px;justify-content:space-between;
+  padding:1px 0;color:var(--muted)}
+.tip .tr.on{color:var(--ink);font-weight:700}
+.tip .tr span.k{display:inline-flex;align-items:center;gap:6px}
+.tip .tr i{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
+.tip .tr span.v{font-variant-numeric:tabular-nums}
+
+table.risk{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:4px}
+table.risk th,table.risk td{padding:7px 8px;text-align:center;
+  border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+table.risk th{color:var(--accent2);font-size:.78rem;text-transform:uppercase;
+  letter-spacing:.3px}
+table.risk td:first-child,table.risk th:first-child{text-align:left}
+table.risk tr.on td{background:var(--sel);font-weight:700}
+table.risk tr.all td{border-top:2px solid var(--line);color:var(--muted)}
+table.risk .sw{width:10px;height:10px;border-radius:3px;display:inline-block;
+  margin-right:7px;vertical-align:-1px}
+
+details.crit{margin-top:12px}
+details.crit summary{cursor:pointer;font-size:.86rem;color:var(--accent2);
+  font-weight:600}
+details.crit table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:10px}
+details.crit td,details.crit th{padding:6px 8px;border-bottom:1px solid var(--line);
+  text-align:left;vertical-align:top}
+details.crit th{color:var(--accent2);font-size:.78rem;text-transform:uppercase}
+@media print{.tip{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap viz">
+  <a class="back" href="index.html">← Escalas interactivas</a>
+  <header>
+    <h1>Riesgo de pérdida de la marcha en DMD</h1>
+    <p class="sub">Puntaje pronóstico simplificado a partir de dos pruebas cronometradas</p>
+    <p class="cite">McDonald CM, Signorovitch J, Goemans NM, et al. A validated prognostic score for time to loss of ambulation in patients with Duchenne muscular dystrophy. <i>Neurology</i> 2026;106(12):e214705. Desarrollado en 608 niños y validado en 226.</p>
+  </header>
+
+  <div class="panel">
+    <h3>Condiciones de uso del puntaje</h3>
+    <label class="chk"><input type="checkbox" id="c6mwd" checked>
+      <span>El niño es ambulante y recorre al menos <b>75 m</b> en la prueba de 6 minutos</span></label>
+    <label class="chk"><input type="checkbox" id="cster" checked>
+      <span>Está recibiendo <b>corticoides</b> (prednisona o deflazacort, pauta diaria o intermitente)</span></label>
+    <p class="note">El puntaje se desarrolló solo en niños que cumplían las dos condiciones. Cerca del 90&nbsp;% de la muestra tenía entre 6 y 14 años.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Pruebas cronometradas</h3>
+    <div class="fields">
+      <div class="field" id="f-rff">
+        <label class="lbl" for="rff">Levantarse del suelo</label>
+        <div class="hint">De supino a bípedo, en segundos (tiempo de Gowers)</div>
+        <input type="number" id="rff" min="0" max="60" step="0.1" inputmode="decimal" placeholder="p. ej. 5,4">
+        <label class="chk"><input type="checkbox" id="rffno">
+          <span>No logra levantarse del suelo sin apoyo externo</span></label>
+      </div>
+      <div class="field" id="f-tmw">
+        <label class="lbl" for="tmw">Caminar o correr 10 m</label>
+        <div class="hint">En segundos, lo más rápido y seguro posible</div>
+        <input type="number" id="tmw" min="0" max="60" step="0.1" inputmode="decimal" placeholder="p. ej. 6,8">
+        <div class="note" id="tmwnote"></div>
+      </div>
+    </div>
+    <p class="note">Los tiempos se <b>truncan en 30 segundos</b>; al niño que ya no logra levantarse del suelo se le asigna 30 segundos, no se deja el dato en blanco. Si se levanta del suelo en menos de 7 segundos, esa prueba basta y no hace falta el tiempo de los 10 m.</p>
+  </div>
+
+  <div id="warns"></div>
+
+  <div class="result empty" id="res">
+    <div class="big">Introduzca el tiempo para levantarse del suelo</div>
+  </div>
+  <div class="trace" id="trace" hidden></div>
+
+  <div class="panel">
+    <h3>Riesgo acumulado de pérdida de la marcha</h3>
+    <div class="legend" id="legend"></div>
+    <div class="chartbox">
+      <svg class="chart" id="chart" viewBox="0 0 720 340" role="img"
+           aria-label="Curvas de riesgo acumulado de pérdida de la marcha por grupo de riesgo, de 0 a 4 años"></svg>
+      <div class="tip" id="tip"></div>
+    </div>
+    <p class="note">Muestra de desarrollo (n&nbsp;=&nbsp;608). Más allá de los 4 años los datos son escasos y el puntaje no informa sobre el horizonte largo.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Tabla de riesgo (%)</h3>
+    <table class="risk" id="tbl">
+      <thead><tr><th>Grupo</th><th>n</th><th>6 meses</th><th>1 año</th><th>2 años</th><th>3 años</th><th>4 años</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <details class="crit">
+      <summary>Definición de los grupos</summary>
+      <table>
+        <thead><tr><th>Grupo</th><th>Levantarse del suelo</th><th>10 m</th><th>Mediana hasta la pérdida de la marcha</th></tr></thead>
+        <tbody id="defs"></tbody>
+      </table>
+    </details>
+  </div>
+
+  <footer>
+    <p><b>Interpretación.</b> El puntaje estima el tiempo hasta la pérdida de la marcha, no el efecto de un tratamiento. Su utilidad es anticipar: un niño de los grupos 4 o 5 necesita que la conversación sobre silla de ruedas, adaptaciones de la vivienda y transporte escolar empiece de inmediato.</p>
+    <p><b>Límites.</b> Los datos son escasos más allá de los 4 años. Todos los niños de la muestra recibían corticoides, de modo que el puntaje no describe la evolución de un niño sin tratamiento. La validación externa usó la dependencia continua de silla de ruedas como desenlace, que se sitúa en el tiempo antes que la confirmación clínica de la pérdida de la marcha.</p>
+    <p>Herramienta de apoyo clínico y docente; no sustituye el juicio clínico. Calculadora del libro <i>Pruebas clínicas, escalas e instrumentos de medida en rehabilitación</i>.</p>
+  </footer>
+</div>
+
+<script>
+/* ---------------------------------------------------------------- datos
+   Todas las cifras proceden de McDonald 2026 (tablas 1 y 2, figuras 1-3).
+   pts: riesgo acumulado (%) en 0 / 0,5 / 1 / 2 / 3 / 4 años.            */
+const G = {
+ 1:{n:189, color:'--r1',
+    pts:[[0,0],[0.5,0],[1,0],[2,1.7],[3,1.7],[4,6.4]],
+    med:null, medTxt:'no alcanzada', medVal:'no alcanzada',
+    prog:'Casi todos siguen caminando al menos 4 años más.',
+    rff:'< 4 s', tmw:'cualquiera'},
+ 2:{n:170, color:'--r2',
+    pts:[[0,0],[0.5,0],[1,0],[2,6.4],[3,13.0],[4,33.1]],
+    med:4.4, medTxt:'4,4 años (IC 95 % 4,0–∞)', medVal:'7,7 años',
+    prog:'Casi uno de cada cuatro pierde la marcha antes de 4 años.',
+    rff:'≥ 4 a < 7 s', tmw:'cualquiera'},
+ 3:{n:141, color:'--r3',
+    pts:[[0,0],[0.5,1.5],[1,6.5],[2,23.7],[3,53.0],[4,66.7]],
+    med:3.0, medTxt:'3,0 años (IC 95 % 2,1–4,1)', medVal:'3,7 años',
+    prog:'Casi la mitad pierde la marcha antes de 4 años; la otra mitad, después.',
+    rff:'≥ 7 a < 20 s', tmw:'< 10 s'},
+ 4:{n:73, color:'--r4',
+    pts:[[0,0],[0.5,1.4],[1,29.4],[2,61.2],[3,81.9],[4,87.9]],
+    med:2.0, medTxt:'2,0 años (IC 95 % 1,6–2,1)', medVal:'2,2 años',
+    prog:'La gran mayoría pierde la marcha antes de 4 años; la mitad, antes de 2.',
+    rff:'≥ 7 a < 20 s, o bien ≥ 20 s', tmw:'≥ 10 s, o bien < 10 s'},
+ 5:{n:35, color:'--r5',
+    pts:[[0,0],[0.5,17.1],[1,65.8],[2,100],[3,100],[4,100]],
+    med:0.9, medTxt:'0,9 años (IC 95 % 0,8–1,6)', medVal:'0,6 años',
+    prog:'Casi todos pierden la marcha antes de 2 años; cerca de la mitad, en el primer año.',
+    rff:'≥ 20 s', tmw:'≥ 10 s'}
+};
+const ALL = {n:608, pts:[[0,0],[0.5,1.5],[1,8.8],[2,19.3],[3,27.6],[4,36.7]]};
+const TCOL = [0.5,1,2,3,4];
+const MAXT = 30;   // truncamiento de los tiempos, en segundos
+
+const $ = s => document.querySelector(s);
+// Una decimal salvo en los extremos exactos 0 y 100, como en la tabla del estudio.
+const es = n => (n === 0 || n === 100 ? String(n) : n.toFixed(1).replace('.', ','));
+
+/* ------------------------------------------------- árbol de decisión */
+function classify(rff, tmw){
+  if (rff == null) return null;
+  if (rff < 4)  return {g:1, why:'Levantarse del suelo en <b>menos de 4 s</b>. Con ese tiempo el grupo queda definido sin necesidad de los 10 m.'};
+  if (rff < 7)  return {g:2, why:'Levantarse del suelo entre <b>4 y 7 s</b>. Con ese tiempo el grupo queda definido sin necesidad de los 10 m.'};
+  if (tmw == null) return {need:true};
+  if (rff < 20) return tmw < 10
+    ? {g:3, why:'Levantarse del suelo entre <b>7 y 20 s</b> con 10 m en <b>menos de 10 s</b>.'}
+    : {g:4, why:'Levantarse del suelo entre <b>7 y 20 s</b> con 10 m en <b>10 s o más</b>.'};
+  return tmw < 10
+    ? {g:4, why:'Levantarse del suelo en <b>20 s o más</b> con 10 m en <b>menos de 10 s</b>.'}
+    : {g:5, why:'Levantarse del suelo en <b>20 s o más</b> con 10 m en <b>10 s o más</b>.'};
+}
+
+/* ------------------------------------------------------- estado y UI */
+let current = null;
+
+function readNum(el){
+  const v = parseFloat(String(el.value).replace(',', '.'));
+  return Number.isFinite(v) && v >= 0 ? Math.min(v, MAXT) : null;
+}
+
+function update(){
+  const rffNo = $('#rffno').checked;
+  $('#rff').disabled = rffNo;
+  let rff = rffNo ? MAXT : readNum($('#rff'));
+
+  const needsTmw = rff != null && rff >= 7;
+  $('#f-tmw').classList.toggle('muted-field', rff != null && rff < 7);
+  $('#tmwnote').textContent = (rff != null && rff < 7)
+    ? 'No es necesario para clasificar a este niño.'
+    : (needsTmw ? 'Necesario para completar la clasificación.' : '');
+
+  const tmw = readNum($('#tmw'));
+  const r = classify(rff, tmw);
+
+  // avisos
+  const w = [];
+  if (!$('#c6mwd').checked) w.push(['Fuera del rango validado','El puntaje se desarrolló en niños ambulantes que recorren al menos 75 m en la prueba de 6 minutos. En un niño por debajo de ese umbral la clasificación no está respaldada por estos datos.']);
+  if (!$('#cster').checked) w.push(['Sin corticoides','Todos los niños de la muestra recibían corticoides. Sin ese tratamiento el riesgo de pérdida de la marcha es mayor que el que muestran estas curvas, en una magnitud que el estudio no permite cuantificar.']);
+  if (rffNo) w.push(['Tiempo asignado por convención','Al no lograr levantarse del suelo se ha asignado el valor de 30 s que fija el estudio. Compruebe el tiempo de los 10 m para separar el grupo 4 del 5.']);
+  if (rff != null && rff === MAXT && !rffNo) w.push(['Tiempo truncado','Los tiempos por encima de 30 s se truncan en 30 s, como en el estudio.']);
+  $('#warns').innerHTML = w.map(([t,b]) => `<div class="warn"><b>${t}</b>${b}</div>`).join('');
+
+  const res = $('#res'), tr = $('#trace');
+  if (!r){
+    current = null;
+    res.className = 'result empty';
+    res.innerHTML = '<div class="big">Introduzca el tiempo para levantarse del suelo</div>';
+    tr.hidden = true;
+  } else if (r.need){
+    current = null;
+    res.className = 'result empty';
+    res.innerHTML = '<div class="big">Falta el tiempo para caminar o correr 10 m</div>';
+    tr.hidden = true;
+  } else {
+    current = r.g;
+    const d = G[r.g];
+    res.className = 'result' + (r.g === 1 ? ' g1' : '');
+    res.innerHTML =
+      `<div class="grp">Grupo de riesgo</div>
+       <div class="big">${r.g}<small> de 5</small></div>
+       <div class="prognosis">${d.prog}</div>
+       <div class="med">Mediana hasta la pérdida de la marcha: <b>${d.medTxt}</b>
+         · en la validación externa, ${d.medVal}</div>`;
+    tr.hidden = false;
+    tr.innerHTML = `<b>Cómo se llegó a este grupo.</b> ${r.why}`;
+  }
+  paint();
+}
+
+/* ------------------------------------------------------------ gráfica */
+const W = 720, H = 340, M = {t:14, r:58, b:38, l:44};
+const PW = W - M.l - M.r, PH = H - M.t - M.b;
+const X = t => M.l + (t / 4) * PW;
+const Y = v => M.t + (1 - v / 100) * PH;
+
+function paint(){
+  const svg = $('#chart');
+  const cs = getComputedStyle($('.viz'));
+  const col = g => cs.getPropertyValue(G[g].color).trim();
+  const grid = cs.getPropertyValue('--grid').trim();
+  const axis = cs.getPropertyValue('--axis').trim();
+  const muted = cs.getPropertyValue('--muted').trim();
+  const ink = cs.getPropertyValue('--ink').trim();
+  let o = '';
+
+  // rejilla horizontal, recesiva
+  for (let v = 0; v <= 100; v += 25){
+    o += `<line x1="${M.l}" y1="${Y(v)}" x2="${M.l+PW}" y2="${Y(v)}"
+          stroke="${grid}" stroke-width="1"/>`;
+    o += `<text x="${M.l-9}" y="${Y(v)+4}" text-anchor="end" font-size="11"
+          fill="${muted}">${v}%</text>`;
+  }
+  // eje del tiempo
+  o += `<line x1="${M.l}" y1="${Y(0)}" x2="${M.l+PW}" y2="${Y(0)}" stroke="${axis}" stroke-width="1"/>`;
+  for (const t of [0,1,2,3,4]){
+    o += `<text x="${X(t)}" y="${Y(0)+20}" text-anchor="middle" font-size="11"
+          fill="${muted}">${t}</text>`;
+  }
+  o += `<text x="${M.l+PW/2}" y="${H-4}" text-anchor="middle" font-size="11"
+        fill="${muted}">Años desde la evaluación</text>`;
+
+  // curvas: las no seleccionadas quedan recesivas
+  const order = [1,2,3,4,5].sort((a,b) => (a===current?1:0) - (b===current?1:0));
+  for (const g of order){
+    const on = current === g, dim = current != null && !on;
+    const d = G[g].pts.map((p,i) => `${i?'L':'M'}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(' ');
+    o += `<path d="${d}" fill="none" stroke="${col(g)}"
+          stroke-width="${on?3.5:2}" stroke-linejoin="round" stroke-linecap="round"
+          opacity="${dim?0.3:1}"/>`;
+    if (on){
+      for (const p of G[g].pts){
+        o += `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="4.5" fill="${col(g)}"
+              stroke="${cs.getPropertyValue('--card').trim()}" stroke-width="2"/>`;
+      }
+    }
+    // etiqueta directa al final de cada curva
+    const last = G[g].pts[G[g].pts.length-1];
+    o += `<text x="${X(last[0])+9}" y="${Y(last[1])+4}" font-size="11"
+          fill="${on?ink:muted}" opacity="${dim?0.45:1}"
+          font-weight="${on?700:400}">Grupo ${g}</text>`;
+  }
+
+  // capa de interacción: crosshair
+  o += `<line id="xh" x1="0" y1="${M.t}" x2="0" y2="${M.t+PH}" stroke="${axis}"
+        stroke-width="1" stroke-dasharray="3 3" opacity="0"/>`;
+  o += `<rect id="hit" x="${M.l}" y="${M.t}" width="${PW}" height="${PH}" fill="transparent"/>`;
+  svg.innerHTML = o;
+  wireHover();
+  paintLegend(col);
+  paintTable(col);
+}
+
+function paintLegend(col){
+  $('#legend').innerHTML = [1,2,3,4,5].map(g =>
+    `<span class="lg${current===g?' on':''}"><i style="background:${col(g)}"></i>Grupo ${g}</span>`
+  ).join('');
+}
+
+function paintTable(col){
+  const rows = [1,2,3,4,5].map(g => {
+    const d = G[g];
+    const cells = TCOL.map(t => {
+      const p = d.pts.find(p => p[0] === t);
+      return `<td>${es(p[1])}</td>`;
+    }).join('');
+    return `<tr class="${current===g?'on':''}">
+      <td><span class="sw" style="background:${col(g)}"></span>Grupo ${g}</td>
+      <td>${d.n}</td>${cells}</tr>`;
+  }).join('');
+  const allc = TCOL.map(t => `<td>${es(ALL.pts.find(p=>p[0]===t)[1])}</td>`).join('');
+  $('#tbl tbody').innerHTML = rows +
+    `<tr class="all"><td>Todos</td><td>${ALL.n}</td>${allc}</tr>`;
+
+  $('#defs').innerHTML = [1,2,3,4,5].map(g =>
+    `<tr><td><b>${g}</b></td><td>${G[g].rff}</td><td>${G[g].tmw}</td><td>${G[g].medTxt}</td></tr>`
+  ).join('');
+}
+
+function wireHover(){
+  const svg = $('#chart'), tip = $('#tip'), xh = svg.querySelector('#xh');
+  const hit = svg.querySelector('#hit');
+  const cs = getComputedStyle($('.viz'));
+  const col = g => cs.getPropertyValue(G[g].color).trim();
+
+  const move = ev => {
+    const r = svg.getBoundingClientRect();
+    const px = (ev.clientX - r.left) / r.width * W;
+    const t = Math.max(0, Math.min(4, (px - M.l) / PW * 4));
+    // punto medido más cercano
+    let near = 0, best = 9;
+    for (const c of [0,...TCOL]) if (Math.abs(c - t) < best){ best = Math.abs(c - t); near = c; }
+    xh.setAttribute('x1', X(near)); xh.setAttribute('x2', X(near));
+    xh.setAttribute('opacity', '1');
+    const lbl = near === 0 ? 'Evaluación inicial'
+              : near === 0.5 ? '6 meses'
+              : near === 1 ? '1 año' : `${near} años`;
+    tip.innerHTML = `<div class="tt">${lbl}</div>` + [1,2,3,4,5].map(g => {
+      const v = G[g].pts.find(p => p[0] === near)[1];
+      return `<div class="tr${current===g?' on':''}">
+        <span class="k"><i style="background:${col(g)}"></i>Grupo ${g}</span>
+        <span class="v">${es(v)}&nbsp;%</span></div>`;
+    }).join('');
+    tip.style.opacity = '1';
+    const bx = X(near) / W * r.width;
+    const tw = tip.offsetWidth;
+    tip.style.left = Math.max(0, Math.min(r.width - tw, bx + 14)) + 'px';
+    tip.style.top = '8px';
+  };
+  const leave = () => { tip.style.opacity = '0'; xh.setAttribute('opacity','0'); };
+  hit.addEventListener('mousemove', move);
+  hit.addEventListener('mouseleave', leave);
+  hit.addEventListener('touchmove', e => { move(e.touches[0]); }, {passive:true});
+  hit.addEventListener('touchend', leave);
+}
+
+['#rff','#tmw'].forEach(s => $(s).addEventListener('input', update));
+['#rffno','#c6mwd','#cster'].forEach(s => $(s).addEventListener('change', update));
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change', paint);
+update();
+</script>
+</body>
+</html>

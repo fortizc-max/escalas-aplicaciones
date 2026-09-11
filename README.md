@@ -12,6 +12,7 @@ descripción de cada nivel de puntaje y calcula el total en tiempo real.
 - **Escala de Berg** — equilibrio (14 ítems, 0–56)
 - **MG-ADL** — AVD en miastenia gravis (8 ítems, 0–24)
 - **EAT-10** — cribado de disfagia (10 ítems, 0–40)
+- **Riesgo de pérdida de la marcha en DMD** — puntaje pronóstico de McDonald 2026 (2 pruebas cronometradas, 5 grupos de riesgo)
 
 ## Estructura
 - `assets/style.css`, `assets/engine.js` — estilo y motor compartidos.
@@ -19,6 +20,10 @@ descripción de cada nivel de puntaje y calcula el total en tiempo real.
 
 Para añadir una escala nueva, copie una página existente y edite el objeto
 `window.SCALE` (ítems y opciones con su valor de puntaje).
+
+La calculadora de riesgo de pérdida de la marcha en DMD no es una escala sumativa
+y no usa `engine.js`: es una página autónoma que implementa el árbol de decisión de
+McDonald 2026 y dibuja las curvas de riesgo. Solo comparte `assets/style.css`.
 
 ## Aviso
 Herramientas de apoyo clínico y docente; no sustituyen el juicio clínico. Las
